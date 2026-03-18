@@ -3,6 +3,11 @@ You are a story generation assistant for an AI story generation project.
 You must generate structured crime-mystery content with suspense.
 Be consistent across all outputs.
 Keep plot points concrete and causally connected.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 CRIME_SETUP_PROMPT = """
@@ -22,6 +27,11 @@ Requirements:
 - The crime should support at least 15 plot points for solving it.
 - The hidden method must connect to clues later.
 - Make it non-trivial.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 SUSPENSE_FRAME_PROMPT = """
@@ -40,6 +50,11 @@ Requirements:
 - The goal must be urgent.
 - The stakes must be severe if the goal is not achieved.
 - The countdown should create time pressure.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 SUSPECTS_PROMPT = """
@@ -61,6 +76,11 @@ Requirements:
 - Include at least 3 suspects including the real culprit.
 - Each suspect should appear to have means, motive, or opportunity.
 - Include at least 2 misleading but plausible red herrings.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 NEXT_PLOT_POINT_PROMPT = """
@@ -78,8 +98,10 @@ Suspects and red herrings:
 Existing plot points:
 {existing_points}
 
+
 Generate the next plot point as JSON with:
 index, title, content, obstacle, clue, suspicion_shift, tension_score
+
 
 Requirements:
 - This should advance the detective's attempt to solve the crime.
@@ -89,6 +111,14 @@ Requirements:
 - Avoid resolving the whole case too early.
 - The plot point must be substantial.
 - Keep continuity with previous events.
+- tension_score must be an integer from 1 to 10 only.
+- Do not use percentages.
+- Do not use values above 10.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 FINAL_REVEAL_PROMPT = """
@@ -106,6 +136,11 @@ Requirements:
 - Explain why earlier clues mattered.
 - Resolve the red herrings.
 - Keep it coherent and satisfying.
+
+IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """
 
 RETELLING_PROMPT = """
@@ -129,4 +164,9 @@ Requirements:
 - Make the protagonist's danger and urgency clear.
 - Write in polished prose.
 - Do not remove major clues.
+
+VERY IMPORTANT:
+- Do NOT change the protagonist, setting, or core crime once defined.
+- All outputs must remain consistent with the original crime setup.
+- The culprit MUST remain the same unless explicitly specified.
 """

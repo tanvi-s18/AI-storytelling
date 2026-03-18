@@ -142,6 +142,7 @@ class SuspenseMetaController:
                     clue=f"Clue {i} reveals part of the hidden method.",
                     suspicion_shift=f"Suspicion shifts after event {i}.",
                     tension_score=min(10, 4 + i // 2)
+                    
                 )
             )
 
