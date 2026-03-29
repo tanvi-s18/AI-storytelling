@@ -1,5 +1,6 @@
 # SuspenseSpin
 Team Name: Bombastic Blobfish
+
 Template: Suspense Generation
 
 ## Repository File Architecture
