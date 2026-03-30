@@ -23,7 +23,7 @@ Template: Suspense Generation
 3. Install requirements:
    `pip install -r requirements.txt`
 4. Copy `.env.example` to `.env`
-5. Insert your OpenAI API key in `.env`
+5. Create your own OpenAI API key and insert it in `.env`
 6. Run:
    `python main.py`
 
