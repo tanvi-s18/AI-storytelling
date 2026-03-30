@@ -1,6 +1,13 @@
 from typing import List
 from pydantic import ValidationError
 
+
+# Architecture buckets:
+# - LLM Layer: LLMClient
+# - Prompt Layer: prompt templates
+# - Schema Layer: Pydantic models
+# - Config Layer: runtime parameters
+
 from llm_client import LLMClient
 from prompts import (
     SYSTEM_PROMPT,
@@ -14,6 +21,10 @@ from prompts import (
 from models import CrimeSetup, SuspenseFrame, PlotPoint, StoryPackage
 from config import NUM_PLOT_POINTS, MAX_RETRIES
 
+
+
+# Cleans LLM outputs before validation since models sometimes
+# return nested structures even when asked not to.
 
 def flatten_crime_setup_fields(data: dict) -> dict:
     for key in ["victim", "setting", "culprit"]:
@@ -86,6 +97,15 @@ def flatten_red_herrings_list(items):
     return flat
 
 
+
+# This class runs the entire story generation pipeline:
+# 1. Crime setup
+# 2. Suspense frame
+# 3. Suspects + red herrings
+# 4. Plot point loop
+# 5. Final reveal
+# 6. Retelling
+
 class SuspenseMetaController:
     """
     Architecture mapping:
@@ -100,7 +120,12 @@ class SuspenseMetaController:
     def __init__(self, team_name: str, system_name: str):
         self.team_name = team_name
         self.system_name = system_name
+
+        # LLM abstraction layer (all model calls go through here)
         self.llm = LLMClient()
+
+    # Used when:
+    # - No API key
 
     def _mock_story(self) -> StoryPackage:
         crime_setup = CrimeSetup(
@@ -142,7 +167,6 @@ class SuspenseMetaController:
                     clue=f"Clue {i} reveals part of the hidden method.",
                     suspicion_shift=f"Suspicion shifts after event {i}.",
                     tension_score=min(10, 4 + i // 2)
-                    
                 )
             )
 
@@ -169,11 +193,17 @@ class SuspenseMetaController:
             retold_story=retold_story,
         )
 
+    
+    # Runs full generation flow end-to-end
+
     def generate_story(self) -> StoryPackage:
         if not self.llm.enabled:
             return self._mock_story()
 
         try:
+            # -------------------------------
+            # STEP 1: CRIME SETUP
+            # -------------------------------
             print("starting crime setup call...")
             crime_setup_data = self.llm.generate_json(SYSTEM_PROMPT, CRIME_SETUP_PROMPT)
             print("finished crime setup call")
@@ -181,6 +211,9 @@ class SuspenseMetaController:
             crime_setup_data = flatten_crime_setup_fields(crime_setup_data)
             crime_setup = CrimeSetup(**crime_setup_data)
 
+            # -------------------------------
+            # STEP 2: SUSPENSE FRAME
+            # -------------------------------
             print("starting suspense frame call...")
             suspense_data = self.llm.generate_json(
                 SYSTEM_PROMPT,
@@ -192,6 +225,9 @@ class SuspenseMetaController:
 
             suspense_frame = SuspenseFrame(**suspense_data)
 
+            # -------------------------------
+            # STEP 3: SUSPECTS
+            # -------------------------------
             print("starting suspects call...")
             suspects_data = self.llm.generate_json(
                 SYSTEM_PROMPT,
@@ -204,6 +240,9 @@ class SuspenseMetaController:
             suspects = flatten_suspects_list(suspects_data.get("suspects", []))
             red_herrings = flatten_red_herrings_list(suspects_data.get("red_herrings", []))
 
+            # -------------------------------
+            # STEP 4: PLOT LOOP
+            # -------------------------------
             plot_points: List[PlotPoint] = []
 
             for idx in range(1, NUM_PLOT_POINTS + 1):
@@ -253,6 +292,9 @@ class SuspenseMetaController:
                         )
                     )
 
+            # -------------------------------
+            # STEP 5: FINAL REVEAL
+            # -------------------------------
             print("starting final reveal call...")
             final_reveal = self.llm.generate_text(
                 SYSTEM_PROMPT,
@@ -263,6 +305,9 @@ class SuspenseMetaController:
             )
             print("finished final reveal call")
 
+            # -------------------------------
+            # STEP 6: RETELLING
+            # -------------------------------
             print("starting retelling call...")
             retold_story = self.llm.generate_text(
                 SYSTEM_PROMPT,
@@ -275,6 +320,9 @@ class SuspenseMetaController:
             )
             print("finished retelling call")
 
+            # -------------------------------
+            # FINAL OUTPUT
+            # -------------------------------
             return StoryPackage(
                 team_name=self.team_name,
                 system_name=self.system_name,

@@ -1,3 +1,8 @@
+# Purpose:
+# This is the master instruction set for the model.
+# It defines the overall behavior of the story-generation agent.
+# Every downstream generation step should stay aligned with this.
+
 SYSTEM_PROMPT = """
 You are a story generation assistant for an AI story generation project.
 You must generate structured crime-mystery content with suspense.
@@ -9,6 +14,9 @@ IMPORTANT:
 - All outputs must remain consistent with the original crime setup.
 - The culprit MUST remain the same unless explicitly specified.
 """
+
+# This is the canonical source of truth for the entire story.
+# Every later component should build on this and never contradict it.
 
 CRIME_SETUP_PROMPT = """
 Create a crime mystery setup in JSON with exactly these fields:
@@ -34,6 +42,10 @@ IMPORTANT:
 - The culprit MUST remain the same unless explicitly specified.
 """
 
+# The crime setup tells us WHAT happened.
+# The suspense frame tells us WHY readers should care right now.
+# It adds urgency, emotional investment, and time pressure.
+
 SUSPENSE_FRAME_PROMPT = """
 Given this crime setup:
 
@@ -56,6 +68,10 @@ IMPORTANT:
 - All outputs must remain consistent with the original crime setup.
 - The culprit MUST remain the same unless explicitly specified.
 """
+
+# This module creates uncertainty.
+# It supports the mystery by giving multiple plausible directions
+# for the investigation, while still preserving the true culprit.
 
 SUSPECTS_PROMPT = """
 Given this crime setup:
@@ -82,6 +98,14 @@ IMPORTANT:
 - All outputs must remain consistent with the original crime setup.
 - The culprit MUST remain the same unless explicitly specified.
 """
+
+# This is the main "loop" in the architecture diagram.
+# It is repeatedly called to grow the mystery step by step.
+#
+# Architecture interpretation:
+#   Existing state/context  ->  LLM call  ->  next structured plot point
+#   Then that new plot point gets appended back into memory/state
+#   and used for the next iteration.
 
 NEXT_PLOT_POINT_PROMPT = """
 You are generating the next plot point in a suspenseful crime mystery.
@@ -120,6 +144,10 @@ IMPORTANT:
 - All outputs must remain consistent with the original crime setup.
 - The culprit MUST remain the same unless explicitly specified.
 """
+
+# This module converts the accumulated investigation trail
+# into a coherent payoff.
+# It is the "answer generator" for the mystery pipeline.
 
 FINAL_REVEAL_PROMPT = """
 Given the following crime setup and plot points, write the final reveal.
